@@ -9,7 +9,7 @@ from google.cloud import bigquery
 client = bigquery.Client()
 
 def find_contracts():
-    with open('showme.js') as f:
+    with open('reentrancy.js') as f:
         script = f.read()
 
     query_job = client.query(
