@@ -6,10 +6,16 @@ import os
 
 from google.cloud import bigquery
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'creds.json' 
+
+
 client = bigquery.Client()
 
 def find_contracts():
-    with open('reentrancy.js') as f:
+    with open('helpers.js') as f:
+        helpers = f.read()
+
+    with open('reentrancy2.js') as f:
         script = f.read()
 
     query_job = client.query(
@@ -24,7 +30,17 @@ def find_contracts():
         SELECT addr, showme(contract) as a FROM `showme-1389.eveem.contracts` where ARRAY_LENGTH(showme(contract)) > 0
         ''')
 
-    return query_job.to_dataframe()  # Waits for job to complete.
+    results = query_job.result()  # Waits for job to complete.
+
+    for row in results:
+        print(row[0])
+        for r in row[1]:
+            d = json.loads(r)
+            print(d['func_name'])
+            print(d['print'])
+            print(d['res'])
+            print()
+        print()
 
 result = find_contracts()
 
